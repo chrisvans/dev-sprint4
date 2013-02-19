@@ -1,6 +1,7 @@
 # Name: Chris Van Schyndel
 
 # Exercise 11.8
+# Why did I do exercise 11.8?  Uhh...  I dunno.
 import random
 import fractions
 
@@ -23,7 +24,6 @@ def a_prime():
 			return numberone
 
 def key_generation():
-	global workaround
 	prime1 = a_prime()
 	prime2 = a_prime()
 	key_length = prime1 * prime2
@@ -47,16 +47,22 @@ def key_generation():
 # store the modular multiplicative inverse.  I can put a print statement
 # before the return statement that contains the exact same calculation,
 # the print statement will return the correct number, while the function
-# will return none.
+# will return none.  The previous calls to the function also do not return 
+# anything. It seems recursion takes up far more memory
+# than a while loop anyways, and so I opted to use While to avoid
+# recursion depth errors.
 
 #def modular_multiplicative(number, modulard, multiple=1):
 #	global workaround
 #	tryone = (modulard * multiple)
 #	trytwo = ((tryone * 1.0 + 1) % number)
 #	if trytwo == 0:
+#		print ((tryone * 1.0) + 1) / number
 #		workaround = ((tryone * 1.0) + 1) / number
+#		return ((tryone * 1.0) + 1) / number
 #	else:
 #		modular_multiplicative(number, modulard, multiple+1)
+#	return 'Past calls'
 
 def modular_multiplicative(number, modulard):
 	multiple = 1
@@ -82,6 +88,32 @@ def eulers_totient(n):
 			count += 1
 	return count
 
+def find_closest_prime(number):
+    numberchange = 0
+    changer = False
+    numbered = number
+    closecheck = 0
+    while True:
+        if changer and numberchange != 0:
+            closecheck = number - numberchange
+        elif numberchange != 0:
+            closecheck = number + numberchange
+        if prime_number(numbered):
+            if prime_number(numbered) and prime_number(closecheck):
+                return numbered, closecheck
+            else:
+                return numbered
+        else:
+            numberchange += 1
+            changer = not changer
+            numbered = crement(number, numberchange, changer)
+            
+def crement(number, summer, change):
+    if change:
+        return number + summer
+    else:
+        return number - summer
+
 
 print key_generation()
 
@@ -98,3 +130,40 @@ def has_duplicates(zelist):
 
 print has_duplicates([1, 2, '11', '1', 7, '3', 5])
 
+# Exercise 11.10
+
+def rot_x(astring, rotator):
+	alpha_upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+	alpha_lower = 'abcdefghijklmnopqrstuvwxyz'
+	newstring = ''
+	for letter in astring:
+		if letter in alpha_upper:
+			newletter = alpha_upper[(alpha_upper.find(letter) + rotator) % 26]
+			newstring += newletter
+		if letter in alpha_lower:
+			newletter = alpha_lower[(alpha_lower.find(letter) + rotator) % 26]
+			newstring += newletter
+	return newstring
+
+def rotate_pairs(wordlist):
+	rotatepairs = []
+	for word in wordlist:
+		for rotator in range(25):
+			if rot_x(word, rotator) in wordlist and rot_x(word, rotator) not in rotatepairs and rotator != 0:
+				rotatepairs.append(word)
+				rotatepairs.append(rot_x(word, rotator))
+		for backrotator in range(25):
+			backrotator = - backrotator
+			if rot_x(word, backrotator) in wordlist and rot_x(word, backrotator) not in rotatepairs and backrotator != 0:
+				rotatepairs.append(word)
+				rotatepairs.append(rot_x(word, backrotator))
+	pairedpairs = []
+	index = 0
+	for pair in rotatepairs:
+		if index == 0 or (index % 2) == 0:
+			print index
+			pairedpairs.append([pair, rotatepairs[index+1]])
+		index += 1
+	return pairedpairs
+
+print rotate_pairs(['apple', 'barnacle', 'alfalfa', 'melon', 'cheer', 'jolly', 'cubed'])
